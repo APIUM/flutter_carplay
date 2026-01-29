@@ -1,3 +1,17 @@
+## Unreleased (finamp fork)
+
+- Add custom Now Playing buttons support (#86)
+
+This adds support for configuring custom buttons on the CarPlay Now Playing screen. Available button types:
+- `CPNowPlayingShuffleButton` toggles shuffle mode
+- `CPNowPlayingRepeatButton` cycles through repeat modes
+- `CPNowPlayingPlaybackRateButton` cycles through playback rates
+- `CPNowPlayingAddToLibraryButton` adds item to library
+- `CPNowPlayingMoreButton` shows additional options
+- `CPNowPlayingImageButton` custom image button with callback
+
+Use `FlutterCarplay.setNowPlayingButtons()` to configure the buttons.
+
 ## 1.2.11
 
 - Fix `List<CPTemplate>` is not a subtype of `Iterable<CPListTemplate>` in `updateTemplates` (#92) (ty @EArminjon)
