@@ -914,7 +914,7 @@ FlutterCarplay.setNowPlayingButtons([
 ]);
 ```
 
-> **Note**: CarPlay supports a maximum of 2 custom buttons on the Now Playing screen. For image buttons, use simple, single color template images for best results.
+> **Note**: CarPlay supports a maximum of 5 playback control buttons on the Now Playing screen, arranged in array order from the leading edge to the trailing edge. For image buttons, use simple, single color template images for best results.
 
 # Support
 
