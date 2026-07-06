@@ -23,6 +23,7 @@ class _MyAppState extends State<MyApp> {
   final FlutterCarplay _flutterCarplay = FlutterCarplay();
   final FlutterAndroidAuto _flutterAndroidAuto = FlutterAndroidAuto();
   bool _isNowPlayingFavourite = false;
+  bool _isNowPlayingShuffled = false;
 
   @override
   void initState() {
@@ -1326,6 +1327,12 @@ class _MyAppState extends State<MyApp> {
     }
 
     updateNowPlayingButtons();
+    // The shuffle button's icon state is read from
+    // MPRemoteCommandCenter, not from setNowPlayingButtons, so it must be
+    // set explicitly whenever the app's shuffle mode changes (and once here).
+    FlutterCarplay.updateNowPlayingShuffleState(
+      isShuffled: _isNowPlayingShuffled,
+    );
 
     // Navigate to the Now Playing screen.
     FlutterCarplay.showSharedNowPlaying();
@@ -1338,7 +1345,11 @@ class _MyAppState extends State<MyApp> {
     FlutterCarplay.setNowPlayingButtons([
       CPNowPlayingShuffleButton(
         onPress: () {
-          print('Shuffle button pressed');
+          _isNowPlayingShuffled = !_isNowPlayingShuffled;
+          print('Shuffle toggled: $_isNowPlayingShuffled');
+          FlutterCarplay.updateNowPlayingShuffleState(
+            isShuffled: _isNowPlayingShuffled,
+          );
         },
       ),
       CPNowPlayingImageButton(

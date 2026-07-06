@@ -26,7 +26,8 @@ let package = Package(
             linkerSettings: [
                 .linkedFramework("CarPlay"),
                 .linkedFramework("UIKit"),
-                .linkedFramework("AVFoundation")
+                .linkedFramework("AVFoundation"),
+                .linkedFramework("MediaPlayer")
             ]
         )
     ]

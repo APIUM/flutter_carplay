@@ -522,6 +522,24 @@ class FlutterCarplay {
     return isCompleted ?? false;
   }
 
+  /// Updates the shuffle state shown by [CPNowPlayingShuffleButton].
+  ///
+  /// CarPlay renders the shuffle button's on/off appearance from
+  /// `MPRemoteCommandCenter.changeShuffleModeCommand`, not from the button's
+  /// press handler. Call this whenever your app's shuffle mode changes (and
+  /// once when configuring the buttons) so the button reflects the current
+  /// state.
+  static Future<bool> updateNowPlayingShuffleState({
+    required bool isShuffled,
+  }) async {
+    final bool? isCompleted =
+        await FlutterCarPlayController.flutterToNativeModule(
+      FCPChannelTypes.updateNowPlayingShuffleState,
+      isShuffled,
+    );
+    return isCompleted ?? false;
+  }
+
   /// Processes a Now Playing button press event from the native side.
   static void _processFCPNowPlayingButtonPressed(String elementId) {
     for (final button in _nowPlayingButtons) {
