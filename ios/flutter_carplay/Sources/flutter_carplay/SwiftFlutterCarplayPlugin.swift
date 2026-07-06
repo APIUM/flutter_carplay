@@ -7,6 +7,7 @@
 
 import CarPlay
 import Flutter
+import MediaPlayer
 
 @available(iOS 14.0, *)
 public class SwiftFlutterCarplayPlugin: NSObject, FlutterPlugin {
@@ -359,6 +360,18 @@ public class SwiftFlutterCarplayPlugin: NSObject, FlutterPlugin {
         return
       }
       FCPSharedNowPlayingTemplate.setButtons(buttons)
+      result(true)
+      break
+    case FCPChannelTypes.updateNowPlayingShuffleState:
+      guard let isShuffled = call.arguments as? Bool else {
+        result(false)
+        return
+      }
+      DispatchQueue.main.async {
+        let shuffleCommand = MPRemoteCommandCenter.shared().changeShuffleModeCommand
+        shuffleCommand.isEnabled = true
+        shuffleCommand.currentShuffleType = isShuffled ? .items : .off
+      }
       result(true)
       break
     case FCPChannelTypes.pushTemplate:

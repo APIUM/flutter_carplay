@@ -40,6 +40,8 @@ class CPNowPlayingRepeatButton extends CPNowPlayingButton {
 }
 
 /// A button that toggles shuffle mode on the Now Playing screen.
+///
+/// Reflects the state set via [FlutterCarplay.updateNowPlayingShuffleState].
 /// https://developer.apple.com/documentation/carplay/cpnowplayingshufflebutton
 /// iOS 14.0+ | iPadOS 14.0+ | Mac Catalyst 14.0+
 class CPNowPlayingShuffleButton extends CPNowPlayingButton {

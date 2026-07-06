@@ -23,6 +23,7 @@ class _MyAppState extends State<MyApp> {
   final FlutterCarplay _flutterCarplay = FlutterCarplay();
   final FlutterAndroidAuto _flutterAndroidAuto = FlutterAndroidAuto();
   bool _isNowPlayingFavourite = false;
+  bool _isNowPlayingShuffled = false;
 
   @override
   void initState() {
@@ -1326,6 +1327,10 @@ class _MyAppState extends State<MyApp> {
     }
 
     updateNowPlayingButtons();
+    // CarPlay reads shuffle state from MPRemoteCommandCenter, keep it in sync
+    FlutterCarplay.updateNowPlayingShuffleState(
+      isShuffled: _isNowPlayingShuffled,
+    );
 
     FlutterCarplay.showSharedNowPlaying();
   }
@@ -1335,7 +1340,11 @@ class _MyAppState extends State<MyApp> {
     FlutterCarplay.setNowPlayingButtons([
       CPNowPlayingShuffleButton(
         onPress: () {
-          print('Shuffle button pressed');
+          _isNowPlayingShuffled = !_isNowPlayingShuffled;
+          print('Shuffle toggled: $_isNowPlayingShuffled');
+          FlutterCarplay.updateNowPlayingShuffleState(
+            isShuffled: _isNowPlayingShuffled,
+          );
         },
       ),
       CPNowPlayingImageButton(
