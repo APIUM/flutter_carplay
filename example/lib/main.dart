@@ -22,6 +22,7 @@ class _MyAppState extends State<MyApp> {
   ConnectionStatusTypes connectionStatus = ConnectionStatusTypes.unknown;
   final FlutterCarplay _flutterCarplay = FlutterCarplay();
   final FlutterAndroidAuto _flutterAndroidAuto = FlutterAndroidAuto();
+  bool _isNowPlayingFavourite = false;
 
   @override
   void initState() {
@@ -1324,11 +1325,28 @@ class _MyAppState extends State<MyApp> {
       return;
     }
 
-    // Configure custom buttons for the Now Playing screen.
+    updateNowPlayingButtons();
+
+    // Navigate to the Now Playing screen.
+    FlutterCarplay.showSharedNowPlaying();
+  }
+
+  void updateNowPlayingButtons() {
+    // Configure custom buttons for the Now Playing screen. The favourite
+    // button's image uses the `sfsymbol:` scheme to swap between the
+    // outlined and filled heart glyph without bundling any assets.
     FlutterCarplay.setNowPlayingButtons([
       CPNowPlayingShuffleButton(
         onPress: () {
           print('Shuffle button pressed');
+        },
+      ),
+      CPNowPlayingImageButton(
+        image: _isNowPlayingFavourite ? 'sfsymbol:heart.fill' : 'sfsymbol:heart',
+        onPress: () {
+          _isNowPlayingFavourite = !_isNowPlayingFavourite;
+          print('Favourite toggled: $_isNowPlayingFavourite');
+          updateNowPlayingButtons();
         },
       ),
       CPNowPlayingRepeatButton(
@@ -1337,9 +1355,6 @@ class _MyAppState extends State<MyApp> {
         },
       ),
     ]);
-
-    // Navigate to the Now Playing screen.
-    FlutterCarplay.showSharedNowPlaying();
   }
 
   @override
