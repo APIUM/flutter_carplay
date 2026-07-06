@@ -20,10 +20,11 @@ class CPListItem implements CPListTemplateItem {
 
   /// Displays an image on the leading edge of the list item cell.
   ///
-  /// Supports three formats:
+  /// Supports four formats:
   /// - **Asset path**: `images/flutter_logo.png` (from pubspec.yaml assets)
   /// - **File path**: `file:///path/to/image.png` (local file on device)
   /// - **Network URL**: `https://example.com/image.png` (remote image)
+  /// - **SF Symbol**: `sfsymbol:star.fill` (iOS system symbol by name)
   String? image;
 
   /// Playback progress status for the content that the list item represents.
@@ -90,10 +91,11 @@ class CPListItem implements CPListTemplateItem {
 
   /// Updating the image which will be displayed on the leading edge of the list item cell.
   ///
-  /// Supports three formats:
+  /// Supports four formats:
   /// - **Asset path**: `images/flutter_logo.png` (from pubspec.yaml assets)
   /// - **File path**: `file:///path/to/image.png` (local file on device)
   /// - **Network URL**: `https://example.com/image.png` (remote image)
+  /// - **SF Symbol**: `sfsymbol:star.fill` (iOS system symbol by name)
   set updateImage(String image) {
     this.image = image;
     FlutterCarPlayController.updateCPListItem(this);
