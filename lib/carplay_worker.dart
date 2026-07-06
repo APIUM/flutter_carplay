@@ -30,6 +30,10 @@ class FlutterCarplay {
   /// Current now playing buttons configured on the Now Playing screen.
   static List<CPNowPlayingButton> _nowPlayingButtons = [];
 
+  /// Configuration signature of the last button list sent to the native side,
+  /// used to skip redundant updates that would cause visible re-rendering.
+  static String? _lastSentNowPlayingButtonConfig;
+
   /// The size (in logical pixels, square) used when rasterizing Flutter asset
   /// SVGs referenced by image fields (e.g. `CPListItem.image`,
   /// `CPGridButton.image`, `CPPoi.image`) before they are sent to the native
@@ -471,7 +475,16 @@ class FlutterCarplay {
   /// - [CPNowPlayingMoreButton] - Shows additional options
   /// - [CPNowPlayingImageButton] - Custom image button with callback
   ///
-  /// **[!] CarPlay supports a maximum of 2 custom buttons on the Now Playing screen.**
+  /// **[!] CarPlay supports a maximum of 5 playback control buttons on the
+  /// Now Playing screen. Buttons are arranged in the array's order, from the
+  /// leading edge of the CarPlay screen to the trailing edge. Any buttons
+  /// beyond the first 5 are ignored.**
+  ///
+  /// Setting the same button configuration (types, images and order) twice in
+  /// a row is a no-op: CarPlay re-renders the button row on every update, so
+  /// redundant updates would cause visible flicker. When an update is skipped,
+  /// the previously configured buttons (and their [onPress] callbacks) stay
+  /// active - avoid capturing state in the callbacks that could go stale.
   ///
   /// Example:
   /// ```dart
@@ -483,6 +496,16 @@ class FlutterCarplay {
   static Future<bool> setNowPlayingButtons(
     List<CPNowPlayingButton> buttons,
   ) async {
+    if (buttons.length > 5) {
+      buttons = buttons.sublist(0, 5);
+    }
+    // Element ids are regenerated per construction so they stay out of the signature
+    final String config = buttons
+        .map((b) => (b.toJson()..remove('_elementId')).toString())
+        .join(';');
+    if (config == _lastSentNowPlayingButtonConfig) {
+      return true;
+    }
     _nowPlayingButtons = buttons;
     final bool? isCompleted =
         await FlutterCarPlayController.flutterToNativeModule(
@@ -491,6 +514,9 @@ class FlutterCarplay {
         'buttons': buttons.map((b) => b.toJson()).toList(),
       },
     );
+    if (isCompleted == true) {
+      _lastSentNowPlayingButtonConfig = config;
+    }
     return isCompleted ?? false;
   }
 
