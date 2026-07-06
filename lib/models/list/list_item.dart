@@ -25,6 +25,7 @@ class CPListItem extends CPListTemplateItem {
   /// * SVG asset: `images/icon.svg` rasterized to PNG before native display
   /// * File path: `file:///path/to/image.png` local file on device
   /// * Network URL: `https://example.com/image.png` remote image
+  /// * SF Symbol: `sfsymbol:heart.fill` iOS system symbol by name
   /// iOS 12.0+ | iPadOS 12.0+ | Mac Catalyst 13.1+
   String? image;
 
@@ -126,6 +127,7 @@ class CPListItem extends CPListTemplateItem {
   /// * SVG asset: `images/icon.svg` rasterized to PNG before native display
   /// * File path: `file:///path/to/image.png` local file on device
   /// * Network URL: `https://example.com/image.png` remote image
+  /// * SF Symbol: `sfsymbol:heart.fill` iOS system symbol by name
   void setImage(String image, {AutoImageTint? imageTint}) {
     this.image = image;
     if (imageTint != null) this.imageTint = imageTint;

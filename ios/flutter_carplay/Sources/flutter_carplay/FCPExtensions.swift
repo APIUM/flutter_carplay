@@ -69,6 +69,7 @@ enum ImageSource {
   case url(URL)
   case file(String)
   case flutterAsset(String)
+  case systemName(String)
 }
 
 // String → ImageSource
@@ -79,6 +80,8 @@ extension String {
     } else if self.starts(with: "file://") {
       // File URIs arrive percent-encoded, decode before use as a filesystem path
       return .file(URL(string: self)?.path ?? self.replacingOccurrences(of: "file://", with: ""))
+    } else if self.starts(with: "sfsymbol:") {
+      return .systemName(String(self.dropFirst("sfsymbol:".count)))
     } else {
       return .flutterAsset(self)
     }
@@ -149,6 +152,16 @@ func makeUIImage(
           userInfo: [NSLocalizedDescriptionKey: "Failed to decode image at path: \(path)"])
       }
       return image
+
+    case .systemName(let name):
+      if let image = UIImage(systemName: name) {
+        return image
+      }
+      errorCallback?(
+        NSError(
+          domain: "ImageLoadError", code: 5,
+          userInfo: [NSLocalizedDescriptionKey: "SF Symbol not found: \(name)"]))
+      return UIImage(systemName: "questionmark") ?? makeUIPlaceholder()
     }
   } catch {
     errorCallback?(error)
@@ -223,6 +236,19 @@ func loadUIImageAsync(
       } catch {
         errorCallback?(error)
         completion(makeUIPlaceholder())
+      }
+    }
+
+  case .systemName(let name):
+    DispatchQueue.main.async {
+      if let image = UIImage(systemName: name) {
+        completion(image)
+      } else {
+        errorCallback?(
+          NSError(
+            domain: "ImageLoadError", code: 5,
+            userInfo: [NSLocalizedDescriptionKey: "SF Symbol not found: \(name)"]))
+        completion(UIImage(systemName: "questionmark") ?? makeUIPlaceholder())
       }
     }
   }
