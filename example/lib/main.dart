@@ -183,6 +183,14 @@ class _MyAppState extends State<MyApp> {
               complete();
             },
           ),
+          CPListItem(
+            text: 'Now Playing Buttons',
+            detailText: 'Shuffle, favourite (SF Symbol), and repeat buttons.',
+            onPress: (complete, self) {
+              openNowPlaying();
+              complete();
+            },
+          ),
         ],
         header: 'Features',
       ),
@@ -1308,6 +1316,30 @@ class _MyAppState extends State<MyApp> {
         ],
       ),
     );
+  }
+
+  void openNowPlaying() {
+    if (!Platform.isIOS) {
+      print('Now Playing is only available on iOS');
+      return;
+    }
+
+    // Configure custom buttons for the Now Playing screen.
+    FlutterCarplay.setNowPlayingButtons([
+      CPNowPlayingShuffleButton(
+        onPress: () {
+          print('Shuffle button pressed');
+        },
+      ),
+      CPNowPlayingRepeatButton(
+        onPress: () {
+          print('Repeat button pressed');
+        },
+      ),
+    ]);
+
+    // Navigate to the Now Playing screen.
+    FlutterCarplay.showSharedNowPlaying();
   }
 
   @override
