@@ -27,6 +27,9 @@ class FlutterCarplay {
   /// Current CarPlay and mobile app connection status.
   static String _connectionStatus = ConnectionStatusTypes.unknown.name;
 
+  /// Current now playing buttons configured on the Now Playing screen.
+  static List<CPNowPlayingButton> _nowPlayingButtons = [];
+
   /// The size (in logical pixels, square) used when rasterizing Flutter asset
   /// SVGs referenced by image fields (e.g. `CPListItem.image`,
   /// `CPGridButton.image`, `CPPoi.image`) before they are sent to the native
@@ -73,6 +76,11 @@ class FlutterCarplay {
           _carPlayController.processFCPListImageRowItemElementSelectedChannel(
             event['data']['elementId'],
             event['data']['index'],
+          );
+          break;
+        case FCPChannelTypes.onNowPlayingButtonPressed:
+          _processFCPNowPlayingButtonPressed(
+            event['data']['elementId'],
           );
           break;
         case FCPChannelTypes.onFCPAlertActionPressed:
@@ -451,5 +459,48 @@ class FlutterCarplay {
       animated,
     );
     return isCompleted ?? false;
+  }
+
+  /// Sets custom buttons on the Now Playing screen.
+  ///
+  /// The Now Playing screen supports various button types:
+  /// - [CPNowPlayingRepeatButton] - Cycles through repeat modes
+  /// - [CPNowPlayingShuffleButton] - Toggles shuffle mode
+  /// - [CPNowPlayingPlaybackRateButton] - Cycles through playback rates
+  /// - [CPNowPlayingAddToLibraryButton] - Adds item to library
+  /// - [CPNowPlayingMoreButton] - Shows additional options
+  /// - [CPNowPlayingImageButton] - Custom image button with callback
+  ///
+  /// **[!] CarPlay supports a maximum of 2 custom buttons on the Now Playing screen.**
+  ///
+  /// Example:
+  /// ```dart
+  /// FlutterCarplay.setNowPlayingButtons([
+  ///   CPNowPlayingShuffleButton(onPress: () => print('Shuffle toggled')),
+  ///   CPNowPlayingRepeatButton(onPress: () => print('Repeat mode changed')),
+  /// ]);
+  /// ```
+  static Future<bool> setNowPlayingButtons(
+    List<CPNowPlayingButton> buttons,
+  ) async {
+    _nowPlayingButtons = buttons;
+    final bool? isCompleted =
+        await FlutterCarPlayController.flutterToNativeModule(
+      FCPChannelTypes.setNowPlayingButtons,
+      <String, dynamic>{
+        'buttons': buttons.map((b) => b.toJson()).toList(),
+      },
+    );
+    return isCompleted ?? false;
+  }
+
+  /// Processes a Now Playing button press event from the native side.
+  static void _processFCPNowPlayingButtonPressed(String elementId) {
+    for (final button in _nowPlayingButtons) {
+      if (button.uniqueId == elementId) {
+        button.onPress?.call();
+        return;
+      }
+    }
   }
 }

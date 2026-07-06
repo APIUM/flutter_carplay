@@ -22,6 +22,7 @@ class _MyAppState extends State<MyApp> {
   ConnectionStatusTypes connectionStatus = ConnectionStatusTypes.unknown;
   final FlutterCarplay _flutterCarplay = FlutterCarplay();
   final FlutterAndroidAuto _flutterAndroidAuto = FlutterAndroidAuto();
+  bool _isNowPlayingFavourite = false;
 
   @override
   void initState() {
@@ -180,6 +181,14 @@ class _MyAppState extends State<MyApp> {
             imageTint: const AutoImageTint.platform(),
             onPress: (complete, self) {
               openImageTintExamplesTemplate();
+              complete();
+            },
+          ),
+          CPListItem(
+            text: 'Now Playing Buttons',
+            detailText: 'Shuffle, favourite (SF Symbol), and repeat buttons.',
+            onPress: (complete, self) {
+              openNowPlaying();
               complete();
             },
           ),
@@ -1308,6 +1317,41 @@ class _MyAppState extends State<MyApp> {
         ],
       ),
     );
+  }
+
+  void openNowPlaying() {
+    if (!Platform.isIOS) {
+      print('Now Playing is only available on iOS');
+      return;
+    }
+
+    updateNowPlayingButtons();
+
+    FlutterCarplay.showSharedNowPlaying();
+  }
+
+  void updateNowPlayingButtons() {
+    // The favourite button swaps between sfsymbol: heart glyphs on toggle
+    FlutterCarplay.setNowPlayingButtons([
+      CPNowPlayingShuffleButton(
+        onPress: () {
+          print('Shuffle button pressed');
+        },
+      ),
+      CPNowPlayingImageButton(
+        image: _isNowPlayingFavourite ? 'sfsymbol:heart.fill' : 'sfsymbol:heart',
+        onPress: () {
+          _isNowPlayingFavourite = !_isNowPlayingFavourite;
+          print('Favourite toggled: $_isNowPlayingFavourite');
+          updateNowPlayingButtons();
+        },
+      ),
+      CPNowPlayingRepeatButton(
+        onPress: () {
+          print('Repeat button pressed');
+        },
+      ),
+    ]);
   }
 
   @override
