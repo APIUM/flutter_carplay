@@ -127,13 +127,15 @@ class CPNowPlayingPlaybackRateButton extends CPNowPlayingButton {
 class CPNowPlayingImageButton extends CPNowPlayingButton {
   /// The image displayed on the button.
   ///
-  /// Supports three formats:
+  /// Supports four formats:
   /// - **Asset path**: `images/heart.png` (from pubspec.yaml assets)
   /// - **File path**: `file:///path/to/image.png` (local file on device)
   /// - **Network URL**: `https://example.com/image.png` (remote image)
+  /// - **SF Symbol**: `sfsymbol:heart.fill` (iOS system symbol by name)
   ///
   /// **[!] The image should be a template image that can be tinted by the system.
-  /// Use a simple, single color image for best results.**
+  /// Use a simple, single color image for best results. SF Symbols are template
+  /// images by nature and are the recommended choice.**
   final String image;
 
   /// Callback fired when the button is pressed.

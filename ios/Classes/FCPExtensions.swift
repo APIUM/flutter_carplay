@@ -12,6 +12,7 @@ enum ImageSource {
     case url(URL)
     case file(String)
     case flutterAsset(String)
+    case systemName(String)
 }
 
 // String → ImageSource
@@ -21,6 +22,8 @@ extension String {
             return .url(URL(string: self)!)
         } else if self.starts(with: "file://") {
             return .file(self.replacingOccurrences(of: "file://", with: ""))
+        } else if self.starts(with: "sfsymbol:") {
+            return .systemName(String(self.dropFirst("sfsymbol:".count)))
         } else {
             return .flutterAsset(self)
         }
@@ -58,6 +61,9 @@ func makeUIImage(from source: ImageSource) -> UIImage {
     case .flutterAsset(let name):
         let key = SwiftFlutterCarplayPlugin.registrar!.lookupKey(forAsset: name)
         return UIImage(imageLiteralResourceName: key)
+
+    case .systemName(let name):
+        return UIImage(systemName: name) ?? UIImage(systemName: "questionmark")!
     }
 }
 
@@ -90,6 +96,11 @@ func loadUIImageAsync(from source: ImageSource, completion: @escaping (UIImage?)
             let key = SwiftFlutterCarplayPlugin.registrar!.lookupKey(forAsset: name)
             let image = UIImage(imageLiteralResourceName: key)
             completion(image)
+        }
+
+    case .systemName(let name):
+        DispatchQueue.main.async {
+            completion(UIImage(systemName: name) ?? UIImage(systemName: "questionmark"))
         }
     }
 }
