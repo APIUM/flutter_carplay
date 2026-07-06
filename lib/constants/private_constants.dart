@@ -14,6 +14,7 @@ enum FCPChannelTypes {
   showNowPlaying,
   setNowPlayingButtons,
   onNowPlayingButtonPressed,
+  updateNowPlayingShuffleState,
   onGridButtonPressed,
   setActionSheet,
   onBarButtonPressed,
