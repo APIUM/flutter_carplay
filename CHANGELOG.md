@@ -1,5 +1,17 @@
 ## Unreleased (finamp fork)
 
+- Add `CPListImageRowItem` (basic variant backported from upstream master): a
+  list row with a title and a horizontally scrollable strip of tappable
+  images, with a per-image `onItemPress(complete, self, index)` callback.
+  `CPListSection.items` now accepts `CPListTemplateItem` (`CPListItem` and/or
+  `CPListImageRowItem`).
+- Support SF Symbols as image sources everywhere images are accepted, via the
+  `sfsymbol:<name>` prefix (e.g. `sfsymbol:heart.fill`).
+- Add `FlutterCarplay.updateNowPlayingShuffleState(isShuffled:)` so
+  `CPNowPlayingShuffleButton` can reflect the app's shuffle state (CarPlay
+  reads it from `MPRemoteCommandCenter.changeShuffleModeCommand`).
+- Correct the Now Playing button limit to 5 (per Apple's documentation) and
+  skip redundant `setNowPlayingButtons` calls to avoid re-render flicker.
 - Add custom Now Playing buttons support (#86)
 
 This adds support for configuring custom buttons on the CarPlay Now Playing screen. Available button types:

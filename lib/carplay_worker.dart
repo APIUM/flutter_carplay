@@ -111,6 +111,12 @@ class FlutterCarplay {
             event['data']['elementId'],
           );
           break;
+        case FCPChannelTypes.onListImageRowItemElementSelected:
+          _carPlayController.processFCPListImageRowItemElementSelected(
+            event['data']['elementId'],
+            event['data']['index'],
+          );
+          break;
         case FCPChannelTypes.onScreenBackButtonPressed:
           FlutterCarPlayController.templateHistory.removeWhere(
             (CPTemplate item) => item.uniqueId == event['data']['elementId'],

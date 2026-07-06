@@ -111,6 +111,24 @@ class FlutterCarPlayController {
     }
   }
 
+  void processFCPListImageRowItemElementSelected(String elementId, int index) {
+    final CPListImageRowItem? imageRowItem =
+        _carplayHelper.findCPListImageRowItem(
+      templates: templateHistory,
+      elementId: elementId,
+    );
+    if (imageRowItem != null) {
+      imageRowItem.onItemPress?.call(
+        () => flutterToNativeModule(
+          FCPChannelTypes.onListImageRowItemSelectedComplete,
+          imageRowItem.uniqueId,
+        ),
+        imageRowItem,
+        index,
+      );
+    }
+  }
+
   void processFCPAlertActionPressed(String elementId) {
     final CPAlertAction selectedAlertAction =
         (currentPresentTemplate as CPActionsTemplate)

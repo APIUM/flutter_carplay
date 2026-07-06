@@ -149,6 +149,16 @@ public class SwiftFlutterCarplayPlugin: NSObject, FlutterPlugin {
       })
       result(true)
       break
+    case FCPChannelTypes.onListImageRowItemSelectedComplete:
+      guard let args = call.arguments as? String else {
+        result(false)
+        return
+      }
+      SwiftFlutterCarplayPlugin.findImageRowItem(elementId: args, actionWhenFound: { item in
+        item.stopItemHandler()
+      })
+      result(true)
+      break
     case FCPChannelTypes.setAlert:
       guard self.objcPresentTemplate == nil else {
         result(FlutterError(code: "ERROR",
@@ -330,6 +340,34 @@ public class SwiftFlutterCarplayPlugin: NSObject, FlutterPlugin {
       }
     }
     NSLog("FCP: Item not found with elementId: \(elementId)")
+  }
+
+  static func findImageRowItem(elementId: String, actionWhenFound: (_ item: FCPListImageRowItem) -> Void) {
+    var collected: [FCPListTemplate] = []
+
+    for template in SwiftFlutterCarplayPlugin.templateStack {
+       if let tabBar = template as? FCPTabBarTemplate {
+              for child in tabBar.getTemplates() {
+                  if let listTemplate = child as? FCPListTemplate {
+                      collected.append(listTemplate)
+                  }
+              }
+          } else if let list = template as? FCPListTemplate {
+              collected.append(list)
+          }
+    }
+
+    for t in collected {
+      for s in t.getSections() {
+        for i in s.getImageRowItems() {
+          if (i.elementId == elementId) {
+            actionWhenFound(i)
+            return
+          }
+        }
+      }
+    }
+    NSLog("FCP: Image row item not found with elementId: \(elementId)")
   }
 
   static public func getTemplateFromHistory(elementId: String) -> FCPRootTemplate? {

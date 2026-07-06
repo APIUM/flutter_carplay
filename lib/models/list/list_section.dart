@@ -1,4 +1,4 @@
-import 'package:flutter_carplay/models/list/list_item.dart';
+import 'package:flutter_carplay/models/list/list_template_item.dart';
 import 'package:uuid/uuid.dart';
 
 /// A section object of list items that appear in a list template.
@@ -9,8 +9,9 @@ class CPListSection {
   /// Header text of the section.
   final String? header;
 
-  /// A list of items as [[CPListItem]] to include in the section.
-  final List<CPListItem> items;
+  /// A list of items as [CPListItem] and/or [CPListImageRowItem] to include
+  /// in the section.
+  final List<CPListTemplateItem> items;
 
   /// Creates [CPListSection] that contains zero or more list items. You can configure
   /// a section to display a header, which CarPlay displays on the trailing edge of the screen.

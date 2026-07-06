@@ -13,18 +13,25 @@ class FCPListSection {
   private(set) var elementId: String
   private var header: String?
   private var items: [CPListTemplateItem]
-  private var objcItems: [FCPListItem]
+  /// Contains FCPListItem and FCPListImageRowItem instances, in display order.
+  private var objcItems: [Any]
   private var sectionIndexEnabled: Bool
 
   init(obj: [String : Any], sectionIndexEnabled: Bool = true) {
     self.elementId = obj["_elementId"] as! String
     self.header = obj["header"] as? String
     self.sectionIndexEnabled = sectionIndexEnabled
-    self.objcItems = (obj["items"] as! Array<[String : Any]>).map {
-      FCPListItem(obj: $0)
+    self.objcItems = (obj["items"] as! Array<[String : Any]>).map { itemObj -> Any in
+      if itemObj["runtimeType"] as? String == "FCPListImageRowItem" {
+        return FCPListImageRowItem(obj: itemObj)
+      }
+      return FCPListItem(obj: itemObj)
     }
-    self.items = self.objcItems.map {
-      $0.get
+    self.items = self.objcItems.map { item -> CPListTemplateItem in
+      if let imageRowItem = item as? FCPListImageRowItem {
+        return imageRowItem.get
+      }
+      return (item as! FCPListItem).get
     }
   }
 
@@ -34,9 +41,13 @@ class FCPListSection {
     self._super = listSection
     return listSection
   }
-  
+
   public func getItems() -> [FCPListItem] {
-    return objcItems 
+    return objcItems.compactMap { $0 as? FCPListItem }
+  }
+
+  public func getImageRowItems() -> [FCPListImageRowItem] {
+    return objcItems.compactMap { $0 as? FCPListImageRowItem }
   }
 
   public func merge(with: FCPListSection) -> FCPListSection {
@@ -48,24 +59,40 @@ class FCPListSection {
     return copy;
   }
 
-  public func updateItems(items: [FCPListItem]) {
-    let fcpListTemplateItem: [String: FCPListItem] = Dictionary(uniqueKeysWithValues: self.objcItems.map { ($0.elementId, $0) })
-    let cpListTemplateItem = Dictionary(uniqueKeysWithValues: zip(self.objcItems.map { $0.elementId }, self.items))
+  /// Replaces the section's items with the given items (list rows and/or
+  /// image rows, in display order).
+  ///
+  /// [FCPListItem]s matched by elementId to an existing instance keep their
+  /// native identity and any in-flight tap completion handler. Image row
+  /// items (and any list item not previously present) are (re)created fresh
+  /// -- image rows don't currently support incremental updates, so they're
+  /// always rebuilt when a section is merged.
+  public func updateItems(items: [Any]) {
+    let fcpListTemplateItem: [String: FCPListItem] = Dictionary(
+      uniqueKeysWithValues: self.getItems().map { ($0.elementId, $0) })
+    let cpListTemplateItem: [String: CPListTemplateItem] = Dictionary(
+      uniqueKeysWithValues: zip(self.objcItems, self.items).compactMap { objcItem, cpItem -> (String, CPListTemplateItem)? in
+        guard let listItem = objcItem as? FCPListItem else { return nil }
+        return (listItem.elementId, cpItem)
+      })
 
     /// Keep Flutter CarPlay object if necessary, use new instance.
-    self.objcItems = items.map { item in
-      if let existing = fcpListTemplateItem[item.elementId] {
-        return existing.merge(with: item) // Merge old instance with newest to keep some data (eg: completeHandler)
-      } else {
-        return item // Use new instance
+    self.objcItems = items.map { item -> Any in
+      guard let listItem = item as? FCPListItem,
+        let existing = fcpListTemplateItem[listItem.elementId]
+      else {
+        return item // Use new instance (image row item, or a never-seen-before list item)
       }
+      return existing.merge(with: listItem) // Merge old instance with newest to keep some data (eg: completeHandler)
     }
-    self.items = items.map { item in
-      if let existing = cpListTemplateItem[item.elementId] {
-        return existing // Reuse existing CP template
-      } else {
-        return item.get // New CP template
+    self.items = items.map { item -> CPListTemplateItem in
+      if let listItem = item as? FCPListItem {
+        if let existing = cpListTemplateItem[listItem.elementId] {
+          return existing // Reuse existing CP template
+        }
+        return listItem.get // New CP template
       }
+      return (item as! FCPListImageRowItem).get // Image rows are always rebuilt
     }
   }
 }

@@ -22,6 +22,7 @@ class _MyAppState extends State<MyApp> {
   ConnectionStatusTypes connectionStatus = ConnectionStatusTypes.unknown;
   final FlutterCarplay _flutterCarplay = FlutterCarplay();
   final FlutterAndroidAuto _flutterAndroidAuto = FlutterAndroidAuto();
+  bool _isShuffled = false;
 
   @override
   void initState() {
@@ -43,6 +44,18 @@ class _MyAppState extends State<MyApp> {
     final List<CPListSection> section1Items = [];
     section1Items.add(CPListSection(
       items: [
+        CPListImageRowItem(
+          text: 'Image Row',
+          images: [
+            'sfsymbol:music.note.list',
+            'sfsymbol:heart.fill',
+            'images/logo_flutter_1080px_clr.png',
+          ],
+          onItemPress: (complete, self, index) {
+            print('Image row item $index pressed');
+            complete();
+          },
+        ),
         CPListItem(
           text: 'Item 1',
           detailText: 'Detail Text',
@@ -609,6 +622,9 @@ class _MyAppState extends State<MyApp> {
       CPNowPlayingShuffleButton(
         onPress: () {
           print('Shuffle button pressed');
+          _isShuffled = !_isShuffled;
+          // Reflect the new shuffle state on the button's icon.
+          FlutterCarplay.updateNowPlayingShuffleState(isShuffled: _isShuffled);
         },
       ),
       CPNowPlayingRepeatButton(
@@ -616,7 +632,14 @@ class _MyAppState extends State<MyApp> {
           print('Repeat button pressed');
         },
       ),
+      CPNowPlayingImageButton(
+        image: 'sfsymbol:wand.and.stars',
+        onPress: () {
+          print('Image button pressed');
+        },
+      ),
     ]);
+    FlutterCarplay.updateNowPlayingShuffleState(isShuffled: _isShuffled);
 
     // Navigate to the Now Playing screen
     FlutterCarplay.showSharedNowPlaying();
