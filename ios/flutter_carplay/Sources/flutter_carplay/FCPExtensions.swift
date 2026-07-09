@@ -78,7 +78,8 @@ extension String {
     if self.starts(with: "http") {
       return .url(URL(string: self)!)
     } else if self.starts(with: "file://") {
-      return .file(self.replacingOccurrences(of: "file://", with: ""))
+      // File URIs arrive percent-encoded, decode before use as a filesystem path
+      return .file(URL(string: self)?.path ?? self.replacingOccurrences(of: "file://", with: ""))
     } else if self.starts(with: "sfsymbol:") {
       return .systemName(String(self.dropFirst("sfsymbol:".count)))
     } else {
