@@ -164,9 +164,8 @@ final class FCPListImageRowItem {
       }
     }
 
-    if isOnPressListenerActive {
-      listImageRowItem.handler = self.handler
-    }
+    // CarPlay rows are always selectable, so taps without a Dart callback must still complete
+    listImageRowItem.handler = self.handler
     if isOnItemPressListenerActive {
       listImageRowItem.listImageRowHandler = self.listImageRowHandler
     }
