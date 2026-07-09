@@ -153,7 +153,14 @@ func makeUIImage(
       return image
 
     case .systemName(let name):
-      if let image = UIImage(systemName: name) {
+      // An optional @RRGGBB suffix tints the symbol and keeps the colour by
+      // rendering the image as original instead of as a template.
+      let parts = name.split(separator: "@", maxSplits: 1)
+      let symbolName = String(parts[0])
+      if let image = UIImage(systemName: symbolName) {
+        if parts.count == 2, let tint = UIColor(fcpHex: String(parts[1])) {
+          return image.withTintColor(tint, renderingMode: .alwaysOriginal)
+        }
         return image
       }
       errorCallback?(
@@ -240,8 +247,14 @@ func loadUIImageAsync(
 
   case .systemName(let name):
     DispatchQueue.main.async {
-      if let image = UIImage(systemName: name) {
-        completion(image)
+      let parts = name.split(separator: "@", maxSplits: 1)
+      let symbolName = String(parts[0])
+      if let image = UIImage(systemName: symbolName) {
+        if parts.count == 2, let tint = UIColor(fcpHex: String(parts[1])) {
+          completion(image.withTintColor(tint, renderingMode: .alwaysOriginal))
+        } else {
+          completion(image)
+        }
       } else {
         errorCallback?(
           NSError(
@@ -365,5 +378,19 @@ extension String {
             : nsString.substring(with: match.range(at: $0))
         }
       } ?? []
+  }
+}
+
+extension UIColor {
+  // Parses an RRGGBB hex string, returning nil for anything malformed.
+  convenience init?(fcpHex: String) {
+    guard fcpHex.count == 6, let value = UInt32(fcpHex, radix: 16) else {
+      return nil
+    }
+    self.init(
+      red: CGFloat((value >> 16) & 0xFF) / 255.0,
+      green: CGFloat((value >> 8) & 0xFF) / 255.0,
+      blue: CGFloat(value & 0xFF) / 255.0,
+      alpha: 1.0)
   }
 }
