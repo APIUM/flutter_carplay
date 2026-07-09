@@ -166,9 +166,10 @@ final class FCPListImageRowItem {
       }
     }
 
-    if isOnPressListenerActive {
-      listImageRowItem.handler = self.handler
-    }
+    // The row itself is always selectable in CarPlay, so a handler must be
+    // attached even when Dart has no onPress callback. The handler completes
+    // immediately in that case, which stops CarPlay spinning forever.
+    listImageRowItem.handler = self.handler
     if isOnItemPressListenerActive {
       listImageRowItem.listImageRowHandler = self.listImageRowHandler
     }
