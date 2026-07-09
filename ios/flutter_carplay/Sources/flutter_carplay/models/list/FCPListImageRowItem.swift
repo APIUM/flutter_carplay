@@ -61,6 +61,9 @@ final class FCPListImageRowItem {
 
   private func handler(selectedItem: CPSelectableListItem, complete: @escaping () -> Void) {
     if isOnPressListenerActive {
+      // Complete any pending selection first so a rapid second tap cannot
+      // leave the earlier one spinning forever.
+      completeHandler?()
       completeHandler = complete
 
       DispatchQueue.main.async {
@@ -78,6 +81,9 @@ final class FCPListImageRowItem {
     selectedItem: CPSelectableListItem, index: Int, complete: @escaping () -> Void
   ) {
     if isOnItemPressListenerActive {
+      // Complete any pending selection first so a rapid second tap cannot
+      // leave the earlier one spinning forever.
+      completeItemHandler?()
       completeItemHandler = complete
 
       DispatchQueue.main.async {
