@@ -1,6 +1,18 @@
 import UIKit
 
 extension UIColor {
+  // Parses an RRGGBB hex string, returning nil for anything malformed.
+  convenience init?(fcpHex: String) {
+    guard fcpHex.count == 6, let value = UInt32(fcpHex, radix: 16) else {
+      return nil
+    }
+    self.init(
+      red: CGFloat((value >> 16) & 0xFF) / 255.0,
+      green: CGFloat((value >> 8) & 0xFF) / 255.0,
+      blue: CGFloat(value & 0xFF) / 255.0,
+      alpha: 1.0)
+  }
+
   convenience init?(from dict: [String: Any]) {
     guard let red = UIColor.colorComponent(dict["red"]),
       let green = UIColor.colorComponent(dict["green"]),

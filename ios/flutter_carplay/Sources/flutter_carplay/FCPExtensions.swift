@@ -107,6 +107,23 @@ func makeUIPlaceholder() -> UIImage {
   }
 }
 
+// An optional @RRGGBB suffix tints the symbol, rendered as original to keep the colour
+@available(iOS 14.0, *)
+func makeSystemImage(named name: String, errorCallback: ((Error) -> Void)? = nil) -> UIImage {
+  let parts = name.split(separator: "@", maxSplits: 1)
+  if let image = UIImage(systemName: String(parts[0])) {
+    if parts.count == 2, let tint = UIColor(fcpHex: String(parts[1])) {
+      return image.withTintColor(tint, renderingMode: .alwaysOriginal)
+    }
+    return image
+  }
+  errorCallback?(
+    NSError(
+      domain: "ImageLoadError", code: 5,
+      userInfo: [NSLocalizedDescriptionKey: "SF Symbol not found: \(name)"]))
+  return UIImage(systemName: "questionmark") ?? makeUIPlaceholder()
+}
+
 // UIImage creation (MAIN THREAD ONLY)
 @available(iOS 14.0, *)
 func makeUIImage(
@@ -154,14 +171,7 @@ func makeUIImage(
       return image
 
     case .systemName(let name):
-      if let image = UIImage(systemName: name) {
-        return image
-      }
-      errorCallback?(
-        NSError(
-          domain: "ImageLoadError", code: 5,
-          userInfo: [NSLocalizedDescriptionKey: "SF Symbol not found: \(name)"]))
-      return UIImage(systemName: "questionmark") ?? makeUIPlaceholder()
+      return makeSystemImage(named: name, errorCallback: errorCallback)
     }
   } catch {
     errorCallback?(error)
@@ -241,15 +251,7 @@ func loadUIImageAsync(
 
   case .systemName(let name):
     DispatchQueue.main.async {
-      if let image = UIImage(systemName: name) {
-        completion(image)
-      } else {
-        errorCallback?(
-          NSError(
-            domain: "ImageLoadError", code: 5,
-            userInfo: [NSLocalizedDescriptionKey: "SF Symbol not found: \(name)"]))
-        completion(UIImage(systemName: "questionmark") ?? makeUIPlaceholder())
-      }
+      completion(makeSystemImage(named: name, errorCallback: errorCallback))
     }
   }
 }
