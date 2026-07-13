@@ -15,11 +15,13 @@ class FCPListSection {
   private var items: [CPListTemplateItem]
   private var objcItems: [FCPListTemplateItem]
   private var sectionIndexEnabled: Bool
+  private var explicitSectionIndexTitle: String?
 
   init(obj: [String: Any]) {
     self.elementId = obj["_elementId"] as! String
     self.header = obj["header"] as? String
     self.sectionIndexEnabled = obj["sectionIndexEnabled"] as? Bool ?? true
+    self.explicitSectionIndexTitle = obj["sectionIndexTitle"] as? String
     self.objcItems = (obj["items"] as! [[String: Any]]).map { dict -> FCPListTemplateItem in
       guard let runtimeType = dict["runtimeType"] as? String else {
         fatalError("FCPListSection.init: Missing runtimeType in item")
@@ -39,7 +41,7 @@ class FCPListSection {
   }
 
   var get: CPListSection {
-    let sectionIndexTitle = sectionIndexEnabled ? header : nil
+    let sectionIndexTitle = sectionIndexEnabled ? (explicitSectionIndexTitle ?? header) : nil
 
     let listSection = CPListSection.init(
       items: items, header: header, sectionIndexTitle: sectionIndexTitle)
