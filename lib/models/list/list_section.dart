@@ -18,6 +18,12 @@ class CPListSection {
   /// iOS 12.0+ | iPadOS 12.0+ | Mac Catalyst 13.1+
   final bool? sectionIndexEnabled;
 
+  /// An explicit index title for the side scrubber, shown even when the
+  /// section has no visible [header]. When null, the [header] is used.
+  /// Ignored when [sectionIndexEnabled] is false.
+  /// iOS 12.0+ | iPadOS 12.0+ | Mac Catalyst 13.1+
+  final String? sectionIndexTitle;
+
   /// The list of items for the section.
   /// iOS 12.0+ | iPadOS 12.0+ | Mac Catalyst 13.1+
   final List<CPListTemplateItem> items;
@@ -27,6 +33,7 @@ class CPListSection {
   CPListSection({
     this.header,
     this.sectionIndexEnabled,
+    this.sectionIndexTitle,
     required List<CPListTemplateItem> items,
     String? id,
   })  : items = List<CPListTemplateItem>.from(items),
@@ -37,6 +44,7 @@ class CPListSection {
         'header': header,
         'items': items.map((e) => e.toJson()).toList(),
         'sectionIndexEnabled': sectionIndexEnabled,
+        'sectionIndexTitle': sectionIndexTitle,
         'runtimeType': 'FCPListSection',
       };
 
