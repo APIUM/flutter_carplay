@@ -59,6 +59,19 @@ final class FCPListImageRowItem {
     }
   }
 
+  /// A stale native item must never mask changed content, so reuse requires equal fields
+  func contentMatches(_ other: FCPListImageRowItem) -> Bool {
+    // Element-based rows have no cheap equality, rebuilding them is always correct
+    guard objcElements.isEmpty, other.objcElements.isEmpty else { return false }
+    return text == other.text && gridImages == other.gridImages
+      && gridImageData == other.gridImageData
+      && gridImageTints == other.gridImageTints
+      && imageTitles == other.imageTitles
+      && allowsMultipleLines == other.allowsMultipleLines
+      && isOnPressListenerActive == other.isOnPressListenerActive
+      && isOnItemPressListenerActive == other.isOnItemPressListenerActive
+  }
+
   private func handler(selectedItem: CPSelectableListItem, complete: @escaping () -> Void) {
     if isOnPressListenerActive {
       completeHandler = complete

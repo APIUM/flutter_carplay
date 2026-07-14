@@ -46,6 +46,19 @@ final class FCPListItem {
     self.setAccessoryType(fromString: obj["accessoryType"] as? String)
   }
 
+  /// A stale native item must never mask changed content, so reuse requires equal fields
+  func contentMatches(_ other: FCPListItem) -> Bool {
+    return text == other.text && detailText == other.detailText
+      && isOnPressListenerActive == other.isOnPressListenerActive
+      && image == other.image && imageData == other.imageData
+      && imageTint == other.imageTint && accessoryImage == other.accessoryImage
+      && trailingImage == other.trailingImage && trailingImageData == other.trailingImageData
+      && trailingImageTint == other.trailingImageTint
+      && playbackProgress == other.playbackProgress && isPlaying == other.isPlaying
+      && playingIndicatorLocation == other.playingIndicatorLocation
+      && accessoryType == other.accessoryType
+  }
+
   private func handler(selectedItem: CPSelectableListItem, complete: @escaping () -> Void) {
     if isOnPressListenerActive {
       completeHandler = complete

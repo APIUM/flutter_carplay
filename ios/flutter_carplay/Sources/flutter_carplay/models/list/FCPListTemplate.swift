@@ -95,12 +95,12 @@ class FCPListTemplate {
   }
 
   public func updateSections(sections: [FCPListSection]) {
-    let fcpSectionsMap: [String: FCPListSection] = Dictionary(
-      uniqueKeysWithValues: self.objcSections.map { ($0.elementId, $0) })
-    let cpSectionsMap = Dictionary(
-      uniqueKeysWithValues: zip(self.objcSections.map { $0.elementId }, self.sections))
+    // Surviving unchanged rows keep their native items so loaded artwork does not flash
+    let existingItems: [String: FCPListTemplateItem] = Dictionary(
+      self.objcSections.flatMap { $0.getFCPListTemplateItems() }.map { ($0.elementId, $0) },
+      uniquingKeysWith: { first, _ in first })
+    sections.forEach { $0.reuseItems(from: existingItems) }
 
-    /// CPListSection didn't provide any way to update items
     self.objcSections = sections
     self.sections = sections.map { section in
       return section.get
